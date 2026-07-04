@@ -6,6 +6,7 @@ DerivedDataCache/
 Build/
 .vs/
 *.sln
+*.slnx
 *.suo
 *.vcxproj
 *.vcxproj.user
