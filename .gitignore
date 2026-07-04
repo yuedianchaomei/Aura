@@ -38,3 +38,5 @@ TextureStreamingCache/
 Temp/
 tmp/
 *.tmp
+
+.vsconfig
