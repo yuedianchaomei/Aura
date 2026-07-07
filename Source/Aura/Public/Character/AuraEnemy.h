@@ -19,6 +19,6 @@ public:
 	AAuraEnemy();
 	virtual void BeginPlay() override;
 	virtual void SetActorHighlight(bool IsHighlight) override;
-private:
-	
+protected:
+	virtual void InitAbilityActorInfo() override;
 };

@@ -26,11 +26,17 @@ void AAuraEnemy::BeginPlay()
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	InitAbilityActorInfo();
 }
 
 void AAuraEnemy::SetActorHighlight(bool IsHighlight)
 {
 	GetMesh()->SetRenderCustomDepth(IsHighlight);
 	Weapon->SetRenderCustomDepth(IsHighlight);
+}
+
+void AAuraEnemy::InitAbilityActorInfo()
+{
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }
