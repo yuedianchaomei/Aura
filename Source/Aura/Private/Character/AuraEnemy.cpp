@@ -35,6 +35,11 @@ void AAuraEnemy::SetActorHighlight(bool IsHighlight)
 	Weapon->SetRenderCustomDepth(IsHighlight);
 }
 
+int32 AAuraEnemy::GetLevel()
+{
+	return Level;
+}
+
 void AAuraEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
