@@ -8,6 +8,7 @@
 #include "Interface/CombatInterface.h"
 #include "BaseCharacter.generated.h"
 
+class UGameplayAbility;
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
@@ -26,9 +27,14 @@ public:
 protected:
 	virtual void InitAbilityActorInfo();
 	void InitializeDefaultAttributes() const;
+	void AddCharacterAbilities();
+	virtual FVector GetCombatSockettLocation() override;
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
+	
+	UPROPERTY(EditAnywhere, Category="Combat")
+	FName WeaponTipSocketName;
 	
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -47,4 +53,7 @@ protected:
 	
 private:
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
+	
+	UPROPERTY(EditAnywhere, Category="Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbility;
 };

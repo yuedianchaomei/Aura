@@ -4,6 +4,7 @@
 #include "Character/BaseCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 ABaseCharacter::ABaseCharacter()
@@ -36,6 +37,23 @@ void ABaseCharacter::InitializeDefaultAttributes() const
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
+}
+
+void ABaseCharacter::AddCharacterAbilities()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
+	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	
+	AuraASC->AddCharacterAbilities(StartupAbility);
+}
+
+FVector ABaseCharacter::GetCombatSockettLocation()
+{
+	return Weapon->GetSocketLocation(WeaponTipSocketName);
 }
 
 void ABaseCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const
