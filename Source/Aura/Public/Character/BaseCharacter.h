@@ -26,7 +26,7 @@ public:
 
 protected:
 	virtual void InitAbilityActorInfo();
-	void InitializeDefaultAttributes() const;
+	virtual void InitializeDefaultAttributes() const;
 	void AddCharacterAbilities();
 	virtual FVector GetCombatSockettLocation() override;
 	
