@@ -48,6 +48,15 @@ void AAuraPlayerController::BeginPlay()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputModeData.SetHideCursorDuringCapture(false);
 	SetInputMode(InputModeData);
+	
+	// 初始化固定相机位置
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		FVector PlayerLocation = ControlledPawn->GetActorLocation();
+		FVector CameraOffset(-600.f, 0.f, 800.f);
+		FixedCameraLocation = PlayerLocation + CameraOffset;
+		FixedCameraRotation = (PlayerLocation - FixedCameraLocation).Rotation();
+	}
 }
 
 void AAuraPlayerController::SetupInputComponent()
@@ -57,6 +66,7 @@ void AAuraPlayerController::SetupInputComponent()
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(CameraSnapAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::SnapCameraToPlayer);
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -163,7 +173,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	{
 		if (GetASC())
 		{
-			GetASC()->AbilityInputTagReleased(InputTag);
+			GetASC()->AbilityInputTagHeld(InputTag);
 		}
 	}
 	else
@@ -202,6 +212,34 @@ void AAuraPlayerController::AutoRun()
 			bAutoRunning = false;
 		}
 	}
+}
+
+void AAuraPlayerController::SnapCameraToPlayer()
+{
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		FVector PlayerLocation = ControlledPawn->GetActorLocation();
+
+		// 相机放在玩家后上方
+		FVector CameraOffset(-600.f, 0.f, 800.f);
+		FixedCameraLocation = PlayerLocation + CameraOffset;
+
+		// 计算看向玩家的旋转
+		FixedCameraRotation = (PlayerLocation - FixedCameraLocation).Rotation();
+	}
+}
+
+void AAuraPlayerController::GetPlayerViewPoint(FVector& Location, FRotator& Rotation) const
+{
+	// 如果 FixedCameraLocation 还没初始化，回退到默认行为
+	if (FixedCameraLocation.IsZero())
+	{
+		Super::GetPlayerViewPoint(Location, Rotation);
+		return;
+	}
+	
+	Location = FixedCameraLocation;
+	Rotation = FixedCameraRotation;
 }
 
 UAuraAbilitySystemComponent* AAuraPlayerController::GetASC()

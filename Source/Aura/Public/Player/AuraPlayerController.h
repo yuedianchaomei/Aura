@@ -41,6 +41,10 @@ private:
 	void AbilityInputTagHeld(FGameplayTag InputTag);
 	void AutoRun();
 	
+	void SnapCameraToPlayer();
+	
+	virtual void GetPlayerViewPoint(FVector& Location, FRotator& Rotation) const override;
+	
 	UAuraAbilitySystemComponent* GetASC();
 	
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -70,4 +74,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+	
+	// <相机控制>
+	mutable FVector FixedCameraLocation;
+	mutable FRotator FixedCameraRotation;
+	
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> CameraSnapAction;
+	// </相机控制>
 };

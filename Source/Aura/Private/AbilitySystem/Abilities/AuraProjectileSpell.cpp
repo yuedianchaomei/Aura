@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/Abilities/AuraProjectileSpell.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "Actor/AuraProjectile.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
@@ -12,7 +14,12 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	const bool bIsServer = HasAuthority(&ActivationInfo);
+	
+}
+
+void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+{
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();;
 	if (!bIsServer)
 	{
 		return;
@@ -22,9 +29,25 @@ void UAuraProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	if (CombatInterface)
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSockettLocation();
-		FTransform SpawnTransform(SocketLocation);
-		AActor* OwningActor = GetOwningActorFromActorInfo();
-		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass, SpawnTransform, OwningActor, Cast<APawn>(OwningActor), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		Rotation.Pitch = 0.f;	
+		
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Rotation.Quaternion());
+		
+		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
+			ProjectileClass,
+			SpawnTransform,
+			GetOwningActorFromActorInfo(),
+			Cast<APawn>(GetOwningActorFromActorInfo()),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+			);
+		
+		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+		Projectile->DamageEffectSpecHandle = SpecHandle;
+		
 		Projectile->FinishSpawning(SpawnTransform);
 	}
 }
