@@ -4,6 +4,7 @@
 #include "Player/AuraPlayerController.h"
 
 #include "AuraGameplayTags.h"
+#include "DrawDebugHelpers.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -17,6 +18,8 @@
 #include "Components/SplineComponent.h"
 #include "Engine/Engine.h"
 #include "Input/AuraInputComponent.h"
+#include "GameFramework/Character.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -30,6 +33,29 @@ void AAuraPlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	CursorTrace();
 	AutoRun();
+}
+
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+
+		DamageText->SetDamageText(DamageAmount);
+		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+		{
+			FVector2D ScreenPosition;
+			PC->ProjectWorldLocationToScreen(DamageText->GetComponentLocation(), ScreenPosition);
+			UE_LOG(LogTemp, Warning, TEXT("Widget Screen Position: X=%f, Y=%f"), ScreenPosition.X, ScreenPosition.Y);
+			// 同时输出屏幕分辨率
+			int32 ViewportX, ViewportY;
+			PC->GetViewportSize(ViewportX, ViewportY);
+			UE_LOG(LogTemp, Warning, TEXT("Viewport Size: %d x %d"), ViewportX, ViewportY);
+		}
+	}
 }
 
 void AAuraPlayerController::BeginPlay()

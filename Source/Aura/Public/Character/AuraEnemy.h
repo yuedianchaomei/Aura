@@ -23,6 +23,9 @@ public:
 	AAuraEnemy();
 	virtual void BeginPlay() override;
 	
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	virtual void Die() override;
+	
 	// <Enemy Interface>
 	virtual void SetActorHighlight(bool IsHighlight) override;
 	// </Enemy Interface>
@@ -49,4 +52,13 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	bool bHitReacting = false;
+
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	float BaseWalkSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Combat")
+	float LifeSpan = 5.f;
 };
