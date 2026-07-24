@@ -35,26 +35,15 @@ void AAuraPlayerController::Tick(float DeltaSeconds)
 	AutoRun();
 }
 
-void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
-	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
 	{
 		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
 		DamageText->RegisterComponent();
 		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-
-		DamageText->SetDamageText(DamageAmount);
-		if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-		{
-			FVector2D ScreenPosition;
-			PC->ProjectWorldLocationToScreen(DamageText->GetComponentLocation(), ScreenPosition);
-			UE_LOG(LogTemp, Warning, TEXT("Widget Screen Position: X=%f, Y=%f"), ScreenPosition.X, ScreenPosition.Y);
-			// 同时输出屏幕分辨率
-			int32 ViewportX, ViewportY;
-			PC->GetViewportSize(ViewportX, ViewportY);
-			UE_LOG(LogTemp, Warning, TEXT("Viewport Size: %d x %d"), ViewportX, ViewportY);
-		}
+		DamageText->SetDamageText(DamageAmount, bBlockedHit, bCriticalHit);
 	}
 }
 
